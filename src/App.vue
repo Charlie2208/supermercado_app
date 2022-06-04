@@ -1,32 +1,63 @@
 <template>
-  <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
-    <router-view/>
-  </div>
+  <v-app>
+    <v-app-bar app class="yellow lighten-1" dark>
+      <v-btn color="deep-purple darken-4" class="mr-2" to="/">
+        <span>Home</span>
+        <v-icon>mdi-home</v-icon>
+      </v-btn>
+      <v-btn color="deep-purple darken-4" to="/crud" v-if="user">
+        <span class="mr-2">Lista APP</span>
+        <v-icon>mdi-clipboard-list-outline</v-icon>
+      </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn
+        color="deep-purple darken-1"
+        class="mr-2"
+        to="/register"
+        v-if="!user"
+      >
+        <span class="mr-2">Registrarte</span>
+        <v-icon>mdi-account-plus</v-icon>
+      </v-btn>
+      <v-btn color="deep-purple darken-1" class="mr-2" to="/login" v-if="!user">
+        <span class="mr-2">Iniciar Sesión</span>
+        <v-icon>mdi-login-variant</v-icon>
+      </v-btn>
+      <v-btn color="deep-purple darken-1" @click="cerrarSesion" v-if="user">
+        <span class="mr-2">Cerrar Sesion</span>
+        <v-icon>mdi-logout</v-icon>
+      </v-btn>
+    </v-app-bar>
+
+    <v-main>
+      <v-container>
+        <router-view />
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "./firebase";
 
-nav {
-  padding: 30px;
-}
+export default {
+  name: "App",
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+  data: () => ({
+    user: null,
+  }),
+  created() {
+    onAuthStateChanged(auth, (user) => {
+      console.log(user);
+      this.user = user;
+    });
+  },
+  methods: {
+    async cerrarSesion() {
+      await signOut(auth);
+      this.$router.push("/login")
+    },
+  },
+};
+</script>
